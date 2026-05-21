@@ -1,0 +1,45 @@
+services:
+  # MariaDB database service
+  mariadb:
+    image: mariadb:10.5
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: tracks
+    volumes:
+      - db_data:/var/lib/mysql
+      # SQL scripts in this folder are auto-executed on first container start
+      - ./db-init:/docker-entrypoint-initdb.d
+    networks:
+      e2e-frameworks:
+        aliases:
+          - db
+    healthcheck:
+      test: ["CMD", "sh", "-c", "mysql -h mariadb -u root -ppassword -e 'SELECT 1;' || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
+
+  # Tracks application service
+  tracks-app:
+    image: tracksapp/tracks
+    ports:
+      - "3000:3000"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - e2e-frameworks
+    environment:
+      DATABASE_URL: "mysql2://admin:1234567890@db:3306/tracks"
+      SECRET_KEY_BASE: "ci_local_test_secret_key_base_not_for_production_use_only"
+      RAILS_ENV: production
+
+networks:
+  e2e-frameworks:
+    driver: bridge
+
+volumes:
+  db_data:

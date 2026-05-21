@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Reports / artifacts
+reports/
+*.log
+*.html
+!**/templates/**/*.html
+
+# OS
+.DS_Store
+Thumbs.db
